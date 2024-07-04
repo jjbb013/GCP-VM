@@ -2,7 +2,8 @@ name: Create GCP VM Instance
 
 on:
   workflow_dispatch:
-
+env:
+  GCP_PROJECT_ID: infra-falcon-424407-c7
 jobs:
   create-vm-instance:
     runs-on: ubuntu-latest
@@ -24,14 +25,14 @@ jobs:
     - name: Configure gcloud
       run: |
         gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
-        gcloud config set-value project ${GCP_PROJECT_ID}
+        gcloud config set-value project ${{GCP_PROJECT_ID}}
 
     - name: Create VM Instance
       env:
         GCP_PROJECT_ID: infra-falcon-424407-c7
-        GCP_VM_ZONE: 'australia-southeast2-b'
-        GCP_VM_NAME: 'instance-au2'
-        GCP_MACHINE_TYPE: 'e2-medium' # 例如
+        GCP_VM_ZONE: 'asia-southeast1-b'
+        GCP_VM_NAME: 'instance-sg'
+        GCP_MACHINE_TYPE: 'e2-micro' # 例如
         GCP_DISK_SIZE: '10GB' # 例如
         GCP_IMAGE_PROJECT: 'debian-cloud' # 例如
         GCP_IMAGE_FAMILY: 'debian-11' # 例如
