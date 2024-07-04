@@ -7,7 +7,7 @@ env:
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
   GCP_VM_ZONE: 'asia-southeast1-b' #在创建不同 VM 时需要修改
   GCP_VM_NAME: 'instance-sg' #在创建不同 VM 时需要修改
-  SERVICE_ACCOUNT: '995680916485-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色，可以尝试替换为'gcpadmin022@infra-falcon-424407-c7.iam.gserviceaccount.com'
+  SERVICE_ACCOUNT: 'gcpadmin022@infra-falcon-424407-c7.iam.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色
   SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/infra-falcon-424407-c7/global/snapshots/snapshot-asia'
   DOMAIN: 'nets.pp.ua' #用于自动创建一条新的 DNS 记录
   CF_ZONE_ID: b2fc014bf87f67714afb1b9c10941a2e #用于自动创建一条新的 DNS 记录
@@ -16,7 +16,7 @@ env:
   CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }} # 用于自动创建一条新的 DNS 记录，从GitHub Secrets中获取API Token
 
 jobs:
-  ip_management:
+  Create_GCP_VM_Instance:
     runs-on: ubuntu-latest
     steps:
         
