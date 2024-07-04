@@ -1,0 +1,46 @@
+name: Create GCP VM Instance
+
+on:
+  push:
+    branches:
+      - main # 或者你希望触发工作流的分支
+
+jobs:
+  create-vm-instance:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Install Google Cloud SDK
+      run: |
+        curl https://sdk.cloud.google.com | bash > /dev/null;
+        echo "export PATH=$PATH:/home/runner/google-cloud-sdk/bin" >> $GITHUB_ENV;
+
+    - name: Configure gcloud
+      run: |
+        gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+        gcloud config set-value project ${GCP_PROJECT_ID}
+
+    - name: Create VM Instance
+      env:
+        GCP_PROJECT_ID: infra-falcon-424407-c7
+        GCP_VM_ZONE: 'australia-southeast2-b'
+        GCP_VM_NAME: 'instance-au2'
+        GCP_MACHINE_TYPE: 'e2-medium' # 例如
+        GCP_DISK_SIZE: '10GB' # 例如
+        GCP_IMAGE_PROJECT: 'debian-cloud' # 例如
+        GCP_IMAGE_FAMILY: 'debian-11' # 例如
+      run: |
+        gcloud compute instances create ${GCP_VM_NAME} \
+          --zone=${GCP_VM_ZONE} \
+          --machine-type=${GCP_MACHINE_TYPE} \
+          --boot-disk-size=${GCP_DISK_SIZE} \
+          --image-family=${GCP_IMAGE_FAMILY} \
+          --image-project=${GCP_IMAGE_PROJECT}
