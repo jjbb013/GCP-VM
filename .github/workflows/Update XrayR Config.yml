@@ -48,5 +48,6 @@ jobs:
       run: |
         gcloud compute ssh ${{env.GCP_VM_NAME}} --zone=${{env.GCP_VM_ZONE}}
         sudo -i
-        xrayr log
+        xrayr
+        0
         
