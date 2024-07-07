@@ -49,5 +49,5 @@ jobs:
         gcloud compute scp https://github.com/jjbb013/GCP-VM/blob/d6dee7d2c6982c80b80959c486a622d4379a0818/server_config.yml wuguangyao022@${{env.GCP_VM_NAME}}:/tmp/config.yml --zone=${{env.GCP_VM_ZONE}}
 
         # Use gcloud compute ssh to start an interactive session on the VM
-        gcloud compute ssh wuguangyao022@${{env.GCP_VM_NAME}} --command="sudo mv /tmp/config.yml /etc/xrayr/000config.yml" --zone=${{env.GCP_VM_ZONE}}
+        gcloud compute ssh wuguangyao022@${{env.GCP_VM_NAME}} --command="sudo mv /tmp/config.yml /etc/XrayR/000config.yml" --zone=${{env.GCP_VM_ZONE}}
 
