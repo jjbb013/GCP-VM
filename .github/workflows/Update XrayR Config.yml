@@ -48,7 +48,5 @@ jobs:
       run: |
         gcloud compute ssh ${{env.GCP_VM_NAME}} --zone=${{env.GCP_VM_ZONE}}
           sudo -i
-          xrayr
-          0
-        '
+            cat /etc/XrayR/config.yml
         
