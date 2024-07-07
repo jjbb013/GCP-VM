@@ -46,7 +46,5 @@ jobs:
     - name: connect ssh via gcloud shell
       id: connect_ssh
       run: |
-        gcloud compute ssh ${{env.GCP_VM_NAME}} --zone=${{env.GCP_VM_ZONE}}
-          sudo -i
-            cat /etc/XrayR/config.yml
+        gcloud compute ssh ${{env.GCP_VM_NAME}} --zone=${{env.GCP_VM_ZONE}} --command="sudo cat /etc/XrayR/config.yml" 
         
