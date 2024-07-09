@@ -47,9 +47,9 @@ jobs:
     - name: Create VM Instance
       id: Create_VM_Instance
       run: |
-        gcloud compute instances create instance-sg \
+        gcloud compute instances create ${{env.GCP_VM_NAME}} \
         --project=infra-falcon-424407-c7 \
-        --zone=asia-southeast1-b \
+        --zone=${{env.GCP_VM_ZONE}} \
         --machine-type=e2-micro \
         --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
         --maintenance-policy=MIGRATE \
