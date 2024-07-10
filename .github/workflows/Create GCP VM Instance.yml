@@ -5,8 +5,8 @@ on:
 env:
   GCP_PROJECT_ID: infra-falcon-424407-c7 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
-  GCP_VM_ZONE: 'asia-east1-b' #在创建不同 VM 时需要修改
-  GCP_VM_NAME: 'instance-tw' #在创建不同 VM 时需要修改
+  GCP_VM_ZONE: 'europe-west2-c' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-london' #在创建不同 VM 时需要修改
   SERVICE_ACCOUNT: '995680916485-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
   SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/infra-falcon-424407-c7/global/snapshots/snapshot-asia'
   DOMAIN: 'nets.pp.ua' #用于自动创建一条新的 DNS 记录
