@@ -1,0 +1,32 @@
+name: MySQL Database Action
+
+on:
+
+
+jobs:
+  mysql-action:
+    runs-on: ubuntu-latest
+    env:
+      GROUP_ID: '["1","2"]'
+      NAME: '中国上海Vmess'
+      HOST: 'shanghai.onemorething.pp.ua'
+      TAGS: '["vmess"]'
+      NETWORK_SETTING: '{"path":"Vhao123","headers":{"Host":"hao123.com"}}'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup MySQL Client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
+
+    - name: Insert Data into MySQL
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+      run: |
+        echo "INSERT INTO v2_server_vmess (group_id, name, host, tags, networkSetting) VALUES ('$GROUP_ID', '$NAME', '$HOST', '$TAGS', '$NETWORK_SETTING');" | mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD $DB_NAME
