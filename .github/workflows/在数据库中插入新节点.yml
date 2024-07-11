@@ -1,7 +1,7 @@
 name: MySQL Database Action
 
 on:
-
+    workflow_dispatch:
 
 jobs:
   mysql-action:
