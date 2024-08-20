@@ -61,7 +61,7 @@ jobs:
               --service-account=${{env.SERVICE_ACCOUNT}} \
               --scopes=https://www.googleapis.com/auth/cloud-platform \
               --tags=rz,cz,http-server,https-server \
-              --create-disk=auto-delete=yes,boot=yes,device-name=${{ env.GCP_VM_NAME }},mode=rw,size=10,source-snapshot=${{env.SNAPSHOT}},type=projects/${{env.GCP_PROJECT_ID}}/zones/${{env.GCP_VM_ZONE}}/diskTypes/pd-balanced \
+              --create-disk=auto-delete=yes,boot=yes,device-name=$name,mode=rw,size=10,source-snapshot=${{env.SNAPSHOT}},type=projects/${{env.GCP_PROJECT_ID}}/zones/$zone/diskTypes/pd-balanced \
               --labels=goog-ec-src=vm_add-gcloud \
               --reservation-affinity=any
           done
