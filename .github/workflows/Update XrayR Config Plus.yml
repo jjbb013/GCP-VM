@@ -1,14 +1,17 @@
-name: Update XrayR Config
+name: Update XrayR Config Plus
 
 on:
   workflow_dispatch:
 env:
+  GCP_VM_ZONE: 'asia-northeast3-c,asia-south1-c,asia-southeast1-c,europe-west2-c' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-kr,instance-india,instance-sg,instance-london' #在创建不同 VM 时需要修改
+  SERVER_CONFIG: 'kr,india,sg,london' #在创建不同 VM 时需要修改
+  
   GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
-  GCP_VM_ZONE: 'asia-east1-c' #在创建不同 VM 时需要修改
-  GCP_VM_NAME: 'instance-tw' #在创建不同 VM 时需要修改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
   SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-1'
+  
   DOMAIN: 'onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
   CF_ZONE_ID: 1fa9774064820f53fe1733e37a19f721 #用于自动创建一条新的 DNS 记录
   PORT: 1081 #暂时用不到
@@ -45,9 +48,17 @@ jobs:
 
     - name: Upload and Replace Configuration
       run: |
+        IFS=',' read -ra ZONES <<< "${{env.GCP_VM_ZONE}}"
+        IFS=',' read -ra NAMES <<< "${{env.GCP_VM_NAME}}"
+        IFS=',' read -ra CONFIGS <<< "${{env.SERVER_CONFIG}}"
+        for i in "${!ZONES[@]}"; do
+            zone="${ZONES[$i]}"
+            name="${NAMES[$i]}"
+            config="${CONFIGS[$i]}"
+            echo "Zone: $zone, Name: $name, Config: $config"
         # Copy the file from the repository to the VM
-        gcloud compute scp server_config.yml wuguangyao025@${{env.GCP_VM_NAME}}:/tmp/config.yml --zone=${{env.GCP_VM_ZONE}}
+        gcloud compute scp server_config_$config.yml wuguangyao025@$name:/tmp/config.yml --zone=$zone
 
         # Use gcloud compute ssh to start an interactive session on the VM
-        gcloud compute ssh wuguangyao025@${{env.GCP_VM_NAME}} --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=${{env.GCP_VM_ZONE}}
+        gcloud compute ssh wuguangyao025@$name --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=$zone
 
