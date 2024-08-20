@@ -56,9 +56,9 @@ jobs:
             name="${NAMES[$i]}"
             config="${CONFIGS[$i]}"
             echo "Zone: $zone, Name: $name, Config: $config"
-        # Copy the file from the repository to the VM
-        gcloud compute scp server_config_$config.yml wuguangyao025@$name:/tmp/config.yml --zone=$zone
-
-        # Use gcloud compute ssh to start an interactive session on the VM
-        gcloud compute ssh wuguangyao025@$name --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=$zone
-
+            # Copy the file from the repository to the VM
+            gcloud compute scp server_config_$config.yml wuguangyao025@$name:/tmp/config.yml --zone=$zone
+    
+            # Use gcloud compute ssh to start an interactive session on the VM
+            gcloud compute ssh wuguangyao025@$name --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=$zone
+    
