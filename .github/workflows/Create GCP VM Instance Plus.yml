@@ -26,8 +26,8 @@ jobs:
     - name: Create VM Instance
       id: Create_VM_Instance
       run: |
-        IFS=',' read -ra ZONE <<< "${{env.GCP_VM_ZONE}}"
-        IFS=',' read -ra NAME <<< "${{env.GCP_VM_NAME}}"
+        IFS=',' read -ra ZONES <<< "${{env.GCP_VM_ZONE}}"
+        IFS=',' read -ra NAMES <<< "${{env.GCP_VM_NAME}}"
         for i in "${!ZONES[@]}"; do
             zone="${ZONES[$i]}"
             name="${NAMES[$i]}"
