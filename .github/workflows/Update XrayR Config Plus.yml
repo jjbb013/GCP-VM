@@ -61,4 +61,4 @@ jobs:
     
             # Use gcloud compute ssh to start an interactive session on the VM
             gcloud compute ssh wuguangyao025@$name --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=$zone
-    
+          done
