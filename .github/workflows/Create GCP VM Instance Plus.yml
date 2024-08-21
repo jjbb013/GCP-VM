@@ -78,18 +78,18 @@ jobs:
               echo "No DNS record found for ${{ env.DOMAIN }}"
               exit 1
             else
-              echo "DNS Record ID for ${{ env.DOMAIN }}: $DNS_ID"
+              echo "DNS Record ID for $domain: $DNS_ID"
               echo "DNS_ID=$DNS_ID" >> $GITHUB_ENV
             fi
               done
             # 构建cURL请求命令，使用先前获取到的DNS_ID
             UPDATE_CMD=$(echo -n "{\"type\":\"A\",\"name\":\"$domain\",\"content\":\"$CURRENT_IP\",\"proxied\":${{ env.PROXIED }}}")
-            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/${{ env.DNS_ID }}" \
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
               -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
               -H "Content-Type: application/json" \
               --data-raw "$UPDATE_CMD"
             # 检查响应状态
-            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/${{ env.DNS_ID }}" \
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
               -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
               -H "Content-Type: application/json")
     
