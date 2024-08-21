@@ -2,11 +2,11 @@ name: Update XrayR Config Plus
 
 on:
   workflow_dispatch:
+
 env:
   GCP_VM_ZONE: 'asia-northeast3-c,asia-south1-c,asia-southeast1-c,europe-west2-c,asia-northeast1-c,asia-east1-c' #在创建不同 VM 时需要修改
   GCP_VM_NAME: 'instance-kr,instance-india,instance-sg,instance-london,instance-tokyo,instance-tw' #在创建不同 VM 时需要修改
-  SERVER_CONFIG: 'kr,india,sg,london,tokyo,tw'' #在创建不同 VM 时需要修改
-  
+  SERVER_CONFIG: 'kr,india,sg,london,tokyo,tw' #在创建不同 VM 时需要修改
   GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
