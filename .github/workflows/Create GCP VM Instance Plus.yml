@@ -5,11 +5,11 @@ on:
 env:
   GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
-  GCP_VM_ZONE: 'asia-northeast3-c,asia-south1-c,asia-southeast1-c,europe-west2-c' #在创建不同 VM 时需要修改
-  GCP_VM_NAME: 'instance-kr,instance-india,instance-sg,instance-london' #在创建不同 VM 时需要修改
+  GCP_VM_ZONE: 'asia-northeast3-c,asia-south1-c,asia-southeast1-c,europe-west2-c,asia-northeast1-c,asia-east1-c' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-kr,instance-india,instance-sg,instance-london,instance-tokyo,instance-tw' #在创建不同 VM 时需要修改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
-  SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-1'
-  DOMAIN: 'onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
+  SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-2'
+  DOMAIN: 'gcp.kr.onemorething.pp.ua,gcp.india.onemorething.pp.ua,gcp.sg.onemorething.pp.ua,gcp.london.onemorething.pp.ua,tw.onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
   CF_ZONE_ID: 1fa9774064820f53fe1733e37a19f721 #用于自动创建一条新的 DNS 记录
   PORT: 1081 #暂时用不到
   PROXIED: 'false' # 用于自动创建一条新的 DNS 记录，是否开启Cloudflare代理，默认否
@@ -47,9 +47,11 @@ jobs:
       run: |
         IFS=',' read -ra ZONES <<< "${{env.GCP_VM_ZONE}}"
         IFS=',' read -ra NAMES <<< "${{env.GCP_VM_NAME}}"
+        IFS=',' read -ra DOMAINS <<< "${{env.DOMAIN}}"
         for i in "${!ZONES[@]}"; do
             zone="${ZONES[$i]}"
             name="${NAMES[$i]}"
+            domain="${DOMAINS[$i]}"
             echo "Zone: $zone, Name: $name"
             gcloud compute instances create $name \
               --project=${{env.GCP_PROJECT_ID}} \
@@ -64,4 +66,36 @@ jobs:
               --create-disk=auto-delete=yes,boot=yes,device-name=$name,mode=rw,size=10,source-snapshot=${{env.SNAPSHOT}},type=projects/${{env.GCP_PROJECT_ID}}/zones/$zone/diskTypes/pd-balanced \
               --labels=goog-ec-src=vm_add-gcloud \
               --reservation-affinity=any
-          done
+            CURRENT_IP=$(gcloud compute instances describe $name --zone=$zone --format='value(networkInterfaces[0].accessConfigs[0].natIP)')
+            echo "::set-output name=current_ip::$CURRENT_IP"
+            echo "Current IP is $CURRENT_IP"
+            # 使用cURL调用Cloudflare API获取DNS记录ID
+            DNS_RECORDS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records?name=$domain" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+            DNS_ID=$(echo "${DNS_RECORDS}" | jq -r '.result[] | select(.name == "'$domain'") | .id')
+            if [ -z "$DNS_ID" ]; then
+              echo "No DNS record found for ${{ env.DOMAIN }}"
+              exit 1
+            else
+              echo "DNS Record ID for ${{ env.DOMAIN }}: $DNS_ID"
+              echo "DNS_ID=$DNS_ID" >> $GITHUB_ENV
+            fi
+              done
+            # 构建cURL请求命令，使用先前获取到的DNS_ID
+            UPDATE_CMD=$(echo -n "{\"type\":\"A\",\"name\":\"$domain\",\"content\":\"$CURRENT_IP\",\"proxied\":${{ env.PROXIED }}}")
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/${{ env.DNS_ID }}" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              --data-raw "$UPDATE_CMD"
+            # 检查响应状态
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/${{ env.DNS_ID }}" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+    
+            if [ "$RESPONSE" -eq 200 ]; then
+              echo "DNS record updated successfully."
+            else
+              echo "Failed to update DNS record. Response code: $RESPONSE"
+              exit 1
+            fi
