@@ -1,0 +1,101 @@
+name: Create GCP VM Sydney+Oregon+HK2+HK3+Osaka+TW2
+
+on:
+  workflow_dispatch:
+env:
+  GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
+  GCP_VM_ZONE: 'australia-southeast1-c,us-west1-c,asia-east2-b,asia-east2-a,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-sydney,instance-oregon,instance-hk2,instance-hk3,instance-osaka,instance-tw2' #在创建不同 VM 时需要修改
+  SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
+  SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-2'
+  DOMAIN: 'gcp.sydney.onemorething.pp.ua,gcp.oregon.onemorething.pp.ua,gcp.hk2.onemorething.pp.ua,gcp.hk3.onemorething.pp.ua,gcp.osaka.onemorething.pp.ua,gcp.tw2.onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
+  CF_ZONE_ID: 1fa9774064820f53fe1733e37a19f721 #用于自动创建一条新的 DNS 记录
+  PORT: 1081 #暂时用不到
+  PROXIED: 'false' # 用于自动创建一条新的 DNS 记录，是否开启Cloudflare代理，默认否
+  CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }} # 用于自动创建一条新的 DNS 记录，从GitHub Secrets中获取API Token
+
+jobs:
+  Create_GCP_VM_Instance:
+    runs-on: ubuntu-latest
+    steps:
+        
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    
+    - name: Authentication
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ env.GCP_SA_KEY }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+
+    - name: Setup Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2.1.0
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Create VM Instance
+      id: Create_VM_Instance
+      run: |
+        IFS=',' read -ra ZONES <<< "${{env.GCP_VM_ZONE}}"
+        IFS=',' read -ra NAMES <<< "${{env.GCP_VM_NAME}}"
+        IFS=',' read -ra DOMAINS <<< "${{env.DOMAIN}}"
+        for i in "${!ZONES[@]}"; do
+            zone="${ZONES[$i]}"
+            name="${NAMES[$i]}"
+            domain="${DOMAINS[$i]}"
+            echo "Zone: $zone, Name: $name"
+            gcloud compute instances create $name \
+              --project=${{env.GCP_PROJECT_ID}} \
+              --zone=$zone \
+              --machine-type=e2-micro \
+              --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
+              --maintenance-policy=MIGRATE \
+              --provisioning-model=STANDARD \
+              --service-account=${{env.SERVICE_ACCOUNT}} \
+              --scopes=https://www.googleapis.com/auth/cloud-platform \
+              --tags=rz,cz,http-server,https-server \
+              --create-disk=auto-delete=yes,boot=yes,device-name=$name,mode=rw,size=10,source-snapshot=${{env.SNAPSHOT}},type=projects/${{env.GCP_PROJECT_ID}}/zones/$zone/diskTypes/pd-balanced \
+              --labels=goog-ec-src=vm_add-gcloud \
+              --reservation-affinity=any
+            CURRENT_IP=$(gcloud compute instances describe $name --zone=$zone --format='value(networkInterfaces[0].accessConfigs[0].natIP)')
+            echo "::set-output name=current_ip::$CURRENT_IP"
+            echo "Current IP is $CURRENT_IP"
+            # 使用cURL调用Cloudflare API获取DNS记录ID
+            DNS_RECORDS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records?name=$domain" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+            DNS_ID=$(echo "${DNS_RECORDS}" | jq -r '.result[] | select(.name == "'$domain'") | .id')
+            if [ -z "$DNS_ID" ]; then
+              echo "No DNS record found for ${{ env.DOMAIN }}"
+              exit 1
+            else
+              echo "DNS Record ID for $domain: $DNS_ID"
+              echo "DNS_ID=$DNS_ID" >> $GITHUB_ENV
+            fi
+              done
+            # 构建cURL请求命令，使用先前获取到的DNS_ID
+            UPDATE_CMD=$(echo -n "{\"type\":\"A\",\"name\":\"$domain\",\"content\":\"$CURRENT_IP\",\"proxied\":${{ env.PROXIED }}}")
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              --data-raw "$UPDATE_CMD"
+            # 检查响应状态
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
+              -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+    
+            if [ "$RESPONSE" -eq 200 ]; then
+              echo "DNS record updated successfully."
+            else
+              echo "Failed to update DNS record. Response code: $RESPONSE"
+              exit 1
+            fi
