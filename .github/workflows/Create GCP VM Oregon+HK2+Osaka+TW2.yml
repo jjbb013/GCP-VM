@@ -1,4 +1,4 @@
-name: Create GCP VM Sydney+Oregon+HK2+HK3+Osaka+TW2
+name: Create GCP VM Oregon+HK2+Osaka+TW2
 
 on:
   workflow_dispatch:
