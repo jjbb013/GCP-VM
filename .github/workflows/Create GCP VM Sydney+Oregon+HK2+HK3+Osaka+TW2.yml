@@ -5,14 +5,14 @@ on:
 env:
   GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
-  GCP_VM_ZONE: 'australia-southeast1-c'
-  GCP_VM_NAME: 'instance-sydney'
-  DOMAIN: 'gcp.sydney.onemorething.pp.ua'
-  #GCP_VM_ZONE: 'australia-southeast1-c,us-west1-c,asia-east2-b,asia-east2-a,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
-  #GCP_VM_NAME: 'instance-sydney,instance-oregon,instance-hk2,instance-hk3,instance-osaka,instance-tw2' #在创建不同 VM 时需要修改
+  #GCP_VM_ZONE: 'australia-southeast1-c'
+  #GCP_VM_NAME: 'instance-sydney'
+  #DOMAIN: 'gcp.sydney.onemorething.pp.ua'
+  GCP_VM_ZONE: 'us-west1-c,asia-east2-b,asia-east2-a,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-oregon,instance-hk2,instance-osaka,instance-tw2' #在创建不同 VM 时需要修改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
   SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-2'
-  #DOMAIN: 'gcp.sydney.onemorething.pp.ua,gcp.oregon.onemorething.pp.ua,gcp.hk2.onemorething.pp.ua,gcp.hk3.onemorething.pp.ua,gcp.osaka.onemorething.pp.ua,gcp.tw2.onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
+  DOMAIN: 'gcp.oregon.onemorething.pp.ua,gcp.hk2.onemorething.pp.ua,gcp.osaka.onemorething.pp.ua,gcp.tw2.onemorething.pp.ua' #用于自动创建一条新的 DNS 记录
   CF_ZONE_ID: 1fa9774064820f53fe1733e37a19f721 #用于自动创建一条新的 DNS 记录
   PORT: 1081 #暂时用不到
   PROXIED: 'false' # 用于自动创建一条新的 DNS 记录，是否开启Cloudflare代理，默认否
