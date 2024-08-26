@@ -76,7 +76,7 @@ jobs:
             DNS_RECORDS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records?name=$domain" \
               -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
               -H "Content-Type: application/json")
-            DNS_ID=$(echo "${DNS_RECORDS}" | jq -r '.result[] | select(.name == "$domain") | .id')
+            DNS_ID=$(echo "${DNS_RECORDS}" | jq -r '.result[] | select(.name == "'$domain'") | .id')
             if [ -z "$DNS_ID" ]; then
               echo "No DNS record found for $domain"
               exit 1
