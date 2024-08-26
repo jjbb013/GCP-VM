@@ -86,6 +86,7 @@ jobs:
               done
             # 构建cURL请求命令，使用先前获取到的DNS_ID
             UPDATE_CMD=$(echo -n "{\"type\":\"A\",\"name\":\"$domain\",\"content\":\"$CURRENT_IP\",\"proxied\":${{ env.PROXIED }}}")
+            echo $UPDATE_CMD
             curl -X PUT "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
               -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
               -H "Content-Type: application/json" \
@@ -94,6 +95,7 @@ jobs:
             RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.cloudflare.com/client/v4/zones/${{ env.CF_ZONE_ID }}/dns_records/$DNS_ID" \
               -H "Authorization: Bearer ${{ env.CF_API_TOKEN }}" \
               -H "Content-Type: application/json")
+            echo $RESPONSE
     
             if [ "$RESPONSE" -eq 200 ]; then
               echo "DNS record updated successfully."
