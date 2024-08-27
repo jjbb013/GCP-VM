@@ -83,7 +83,6 @@ jobs:
             else
               echo "DNS Record ID for $domain: $DNS_ID"
             fi
-              done
             # 构建cURL请求命令，使用先前获取到的DNS_ID
             UPDATE_CMD=$(echo -n "{\"type\":\"A\",\"name\":\"$domain\",\"content\":\"$CURRENT_IP\",\"proxied\":${{ env.PROXIED }}}")
             echo $UPDATE_CMD
@@ -103,3 +102,4 @@ jobs:
               echo "Failed to update DNS record. Response code: $RESPONSE"
               exit 1
             fi
+              done
