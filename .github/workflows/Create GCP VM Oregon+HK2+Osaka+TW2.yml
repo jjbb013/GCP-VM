@@ -8,7 +8,7 @@ env:
   #GCP_VM_ZONE: 'australia-southeast1-c'
   #GCP_VM_NAME: 'instance-sydney'
   #DOMAIN: 'gcp.sydney.onemorething.pp.ua'
-  GCP_VM_ZONE: 'us-west1-c,asia-east2-b,asia-east2-a,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
+  GCP_VM_ZONE: 'us-west1-c,asia-east2-b,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
   GCP_VM_NAME: 'instance-oregon,instance-hk2,instance-osaka,instance-tw2' #在创建不同 VM 时需要修改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
   SNAPSHOT: 'https://www.googleapis.com/compute/v1/projects/sturdy-yen-432600-k2/global/snapshots/snapshot-2'
