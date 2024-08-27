@@ -5,8 +5,8 @@ on:
 
 env:
   GCP_VM_ZONE: 'asia-east2-b,asia-east1-b,asia-northeast2-c,australia-southeast1-c,us-west1-c' #在创建不同 VM 时需要修改
-  GCP_VM_NAME: 'instance-hk2,instance-tw2,instance-osaka,instance-syndey,instance-oregon' #在创建不同 VM 时需要修改
-  SERVER_CONFIG: 'hk2,tw2,osaka,syndey,oregon' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-hk2,instance-tw2,instance-osaka,instance-sydney,instance-oregon' #在创建不同 VM 时需要修改
+  SERVER_CONFIG: 'hk2,tw2,osaka,sydney,oregon' #在创建不同 VM 时需要修改
   GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
   SERVICE_ACCOUNT: '884185986692-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
