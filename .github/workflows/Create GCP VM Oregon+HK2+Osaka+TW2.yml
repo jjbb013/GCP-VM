@@ -3,7 +3,7 @@ name: Create GCP VM Oregon+HK2+Osaka+TW2
 on:
   workflow_dispatch:
 env:
-  GCP_PROJECT_ID: sturdy-yen-432600-k2 #在切换Google账号时需要更改
+  GCP_PROJECT_ID: skillful-cider-440305-d7 #在切换Google账号时需要更改
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
   #GCP_VM_ZONE: 'australia-southeast1-c'
   #GCP_VM_NAME: 'instance-sydney'
