@@ -1,0 +1,57 @@
+name: Update XrayR Config for Oregon+HK2+Osaka+TW2
+
+on:
+  workflow_dispatch:
+
+env:
+  GCP_VM_ZONE: 'us-west1-c,asia-east2-b,asia-northeast2-c,asia-east1-b' #在创建不同 VM 时需要修改
+  GCP_VM_NAME: 'instance-oregon,instance-hk2,instance-osaka,instance-tw2' #在创建不同 VM 时需要修改
+  SERVER_CONFIG: 'oregon,hk2,osaka,tw2' #在创建不同 VM 时需要修改
+  GCP_PROJECT_ID: skillful-cider-440305-d7 #在切换Google账号时需要更改
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} #在切换Google账号时需要更改
+  SERVICE_ACCOUNT: '519781891758-compute@developer.gserviceaccount.com' #在切换Google账号时需要更改,需要在 GCP 中创建 IAM 角色,Ask a project owner to grant you the iam.serviceAccountUser role on the service account
+
+jobs:
+  Create_GCP_VM_Instance:
+    runs-on: ubuntu-latest
+    steps:
+        
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+  
+    - name: Authentication
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ env.GCP_SA_KEY }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+
+    - name: Setup Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2.1.0
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+
+    - name: Upload and Replace Configuration
+      run: |
+        IFS=',' read -ra ZONES <<< "${{env.GCP_VM_ZONE}}"
+        IFS=',' read -ra NAMES <<< "${{env.GCP_VM_NAME}}"
+        IFS=',' read -ra CONFIGS <<< "${{env.SERVER_CONFIG}}"
+        for i in "${!ZONES[@]}"; do
+            zone="${ZONES[$i]}"
+            name="${NAMES[$i]}"
+            config="${CONFIGS[$i]}"
+            echo "Zone: $zone, Name: $name, Config: $config"
+            # Copy the file from the repository to the VM
+            gcloud compute scp server_config_$config.yml wuguangyao025@$name:/tmp/config.yml --zone=$zone
+    
+            # Use gcloud compute ssh to start an interactive session on the VM
+            gcloud compute ssh wuguangyao025@$name --command="sudo mv /tmp/config.yml /etc/XrayR/config.yml" --zone=$zone
+          done
