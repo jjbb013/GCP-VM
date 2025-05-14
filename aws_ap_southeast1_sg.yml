@@ -15,9 +15,9 @@ ConnectionConfig:
 Nodes:
   - PanelType: "NewV2board" # Panel type: SSpanel, NewV2board, PMpanel, Proxypanel, V2RaySocks, GoV2Panel
     ApiConfig:
-      ApiHost: "https://xb.nets.pp.ua"
+      ApiHost: "https://hello.justdoit.pp.ua"
       ApiKey: "Outline2024Outline2024"
-      NodeID: 16
+      NodeID: 13
       NodeType: Shadowsocks # Node type: V2ray, Shadowsocks, Trojan, Shadowsocks-Plugin
       Timeout: 30 # Timeout for the api request
       EnableVless: false # Enable Vless for V2ray Type
